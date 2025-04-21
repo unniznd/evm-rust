@@ -4,7 +4,7 @@ mod opcode;
 use crate::evm::EVM;
 
 fn main() {
-    let hex_input = "60ff60000b";
+    let hex_input = "6009600a10";
 
     match EVM::new(hex_input) {
         Ok(mut evm) => match evm.execute() {

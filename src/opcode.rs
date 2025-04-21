@@ -12,6 +12,7 @@ pub enum Opcode {
     MULMOD,     // 0x08: Modular multiple top three stack items ((a * b) % N)
     EXP,        // 0x0A: Exponent top two stack items (a^b)
     SIGNEXTEND, // 0x0B: Extend length of two’s complement signed integer
+    LT,         // 0x10: Less than comparsion top two stack items
     PUSH1,      // 0x60: Place 1 byte on top of stack
     PUSH2,      // 0x61: Place 2 byte on top of stack
     PUSH3,      // 0x62: Place 3 byte on top of stack
