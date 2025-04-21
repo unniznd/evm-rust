@@ -43,6 +43,13 @@ impl EVM {
         opcode_map.insert(0x11, Opcode::GT);
         opcode_map.insert(0x12, Opcode::SLT);
         opcode_map.insert(0x13, Opcode::SGT);
+        opcode_map.insert(0x14, Opcode::EQ);
+        opcode_map.insert(0x15, Opcode::ISZERO);
+        opcode_map.insert(0x16, Opcode::AND);
+        opcode_map.insert(0x17, Opcode::OR);
+        opcode_map.insert(0x18, Opcode::XOR);
+        opcode_map.insert(0x19, Opcode::NOT);
+        opcode_map.insert(0x1A, Opcode::BYTE);
         opcode_map.insert(0x60, Opcode::PUSH1);
         opcode_map.insert(0x61, Opcode::PUSH2);
         opcode_map.insert(0x62, Opcode::PUSH3);
@@ -266,6 +273,94 @@ impl EVM {
                     } else {
                         self.stack.push(U256::from(0 as u8));
                     }
+                    self.pc += 1;
+                }
+                Opcode::EQ => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+                    let b = self.stack.pop().unwrap();
+
+                    if a == b {
+                        self.stack.push(U256::from(1 as u8));
+                    } else {
+                        self.stack.push(U256::from(0 as u8));
+                    }
+                    self.pc += 1;
+                }
+                Opcode::ISZERO => {
+                    if self.stack.len() < 1 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+
+                    if a == 0 {
+                        self.stack.push(U256::from(1 as u8));
+                    } else {
+                        self.stack.push(U256::from(0 as u8));
+                    }
+                    self.pc += 1;
+                }
+                Opcode::AND => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+                    let b = self.stack.pop().unwrap();
+
+                    self.stack.push(a & b);
+                    self.pc += 1;
+                }
+                Opcode::OR => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+                    let b = self.stack.pop().unwrap();
+
+                    self.stack.push(a | b);
+                    self.pc += 1;
+                }
+                Opcode::XOR => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+                    let b = self.stack.pop().unwrap();
+
+                    self.stack.push(a ^ b);
+                    self.pc += 1;
+                }
+                Opcode::NOT => {
+                    if self.stack.len() < 1 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+
+                    self.stack.push(!a);
+                    self.pc += 1;
+                }
+                Opcode::BYTE => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+                    let i = self.stack.pop().unwrap();
+                    let x = self.stack.pop().unwrap();
+                    let index = i.as_u64();
+                    let result = if index >= 32 {
+                        U256::ZERO
+                    } else {
+                        let shift = 256 - 8 - (index * 8);
+                        (x >> shift) & U256::from(0xFF as u8)
+                    };
+                    self.stack.push(result);
                     self.pc += 1;
                 }
                 Opcode::PUSH1 => {

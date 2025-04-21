@@ -16,6 +16,13 @@ pub enum Opcode {
     GT,         // 0x11: Greater than comparsion top two stack items
     SLT,        // 0x12: Signed less than comparsion top two stack items
     SGT,        // 0x13: Signed greater than comparsion top two stack items
+    EQ,         // 0x14: Equal to comparsion top two stack items
+    ISZERO,     // 0x15: Zero comparsion top stack item
+    AND,        // 0x16: Bitwise AND top two stack items
+    OR,         // 0x17: Bitwise OR top two stack items
+    XOR,        // 0x18: Bitwise XOR top two stack items
+    NOT,        // 0x19: Bitwise NOT top stack item
+    BYTE,       // 0x1A: Retrieve single byte from word top two stack items
     PUSH1,      // 0x60: Place 1 byte on top of stack
     PUSH2,      // 0x61: Place 2 byte on top of stack
     PUSH3,      // 0x62: Place 3 byte on top of stack
