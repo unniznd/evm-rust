@@ -40,6 +40,7 @@ impl EVM {
         opcode_map.insert(0x0A, Opcode::EXP);
         opcode_map.insert(0x0B, Opcode::SIGNEXTEND);
         opcode_map.insert(0x10, Opcode::LT);
+        opcode_map.insert(0x11, Opcode::GT);
         opcode_map.insert(0x60, Opcode::PUSH1);
         opcode_map.insert(0x61, Opcode::PUSH2);
         opcode_map.insert(0x62, Opcode::PUSH3);
@@ -214,6 +215,21 @@ impl EVM {
                     let b = self.stack.pop().unwrap();
 
                     if a < b {
+                        self.stack.push(U256::from(1 as u8));
+                    } else {
+                        self.stack.push(U256::from(0 as u8));
+                    }
+                    self.pc += 1;
+                }
+                Opcode::GT => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let a = self.stack.pop().unwrap();
+                    let b = self.stack.pop().unwrap();
+
+                    if a > b {
                         self.stack.push(U256::from(1 as u8));
                     } else {
                         self.stack.push(U256::from(0 as u8));
