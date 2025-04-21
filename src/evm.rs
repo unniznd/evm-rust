@@ -189,14 +189,13 @@ impl EVM {
                         self.stack.push(value);
                     } else {
                         let sign_bit_pos = (b + 1) * 8 - 1;
-                        // Create a mask for the least significant (b+1) bytes: 2^((b+1)*8) - 1
+
                         let mask = (U256::from(1 as u8) << ((b + 1) * 8)) - U256::from(1 as u8);
                         let truncated = value & mask;
                         let is_negative =
                             (value & (U256::from(1 as u8) << sign_bit_pos)) != U256::ZERO;
 
                         if is_negative {
-                            // Extend sign bit by setting all higher bits to 1
                             let sign_extension = U256::MAX << (sign_bit_pos + 1);
                             self.stack.push(truncated | sign_extension);
                         } else {
