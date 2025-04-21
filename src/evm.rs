@@ -50,6 +50,9 @@ impl EVM {
         opcode_map.insert(0x18, Opcode::XOR);
         opcode_map.insert(0x19, Opcode::NOT);
         opcode_map.insert(0x1A, Opcode::BYTE);
+        opcode_map.insert(0x1B, Opcode::SHL);
+        opcode_map.insert(0x1C, Opcode::SHR);
+        opcode_map.insert(0x1D, Opcode::SAR);
         opcode_map.insert(0x60, Opcode::PUSH1);
         opcode_map.insert(0x61, Opcode::PUSH2);
         opcode_map.insert(0x62, Opcode::PUSH3);
@@ -359,6 +362,55 @@ impl EVM {
                     } else {
                         let shift = 256 - 8 - (index * 8);
                         (x >> shift) & U256::from(0xFF as u8)
+                    };
+                    self.stack.push(result);
+                    self.pc += 1;
+                }
+                Opcode::SHL => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let shift = self.stack.pop().unwrap();
+                    let value = self.stack.pop().unwrap();
+                    if shift > 255 {
+                        self.stack.push(U256::from(0 as u8));
+                    } else {
+                        self.stack.push(value << shift);
+                    }
+
+                    self.pc += 1;
+                }
+                Opcode::SHR => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+
+                    let shift = self.stack.pop().unwrap();
+                    let value = self.stack.pop().unwrap();
+                    if shift > 255 {
+                        self.stack.push(U256::from(0 as u8));
+                    } else {
+                        self.stack.push(value >> shift);
+                    }
+
+                    self.pc += 1;
+                }
+                Opcode::SAR => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+                    let shift = self.stack.pop().unwrap();
+                    let value = self.stack.pop().unwrap().as_i256();
+                    let shift_amount = shift.as_u64();
+                    let result = if shift_amount > 255 {
+                        if value.is_negative() {
+                            U256::MAX
+                        } else {
+                            U256::ZERO
+                        }
+                    } else {
+                        (value >> shift_amount).as_u256()
                     };
                     self.stack.push(result);
                     self.pc += 1;

@@ -23,6 +23,9 @@ pub enum Opcode {
     XOR,        // 0x18: Bitwise XOR top two stack items
     NOT,        // 0x19: Bitwise NOT top stack item
     BYTE,       // 0x1A: Retrieve single byte from word top two stack items
+    SHL,        // 0x1B: Left shift operation top two stack items
+    SHR,        // 0x1C: Right shift operation top two stack items
+    SAR,        // 0x1D: Arithmetic (signed) right shift top two stack items
     PUSH1,      // 0x60: Place 1 byte on top of stack
     PUSH2,      // 0x61: Place 2 byte on top of stack
     PUSH3,      // 0x62: Place 3 byte on top of stack
