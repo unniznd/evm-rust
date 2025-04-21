@@ -37,7 +37,8 @@ impl EVM {
         opcode_map.insert(0x07, Opcode::SMOD);
         opcode_map.insert(0x08, Opcode::ADDMOD);
         opcode_map.insert(0x09, Opcode::MULMOD);
-        opcode_map.insert(0x10, Opcode::EXP);
+        opcode_map.insert(0x0A, Opcode::EXP);
+        opcode_map.insert(0x0B, Opcode::SIGNEXTEND);
         opcode_map.insert(0x60, Opcode::PUSH1);
         opcode_map.insert(0x61, Opcode::PUSH2);
         opcode_map.insert(0x62, Opcode::PUSH3);
@@ -174,6 +175,34 @@ impl EVM {
                     let b = self.stack.pop().unwrap();
 
                     self.stack.push(a.wrapping_pow(b.as_u32()));
+                    self.pc += 1;
+                }
+                Opcode::SIGNEXTEND => {
+                    if self.stack.len() < 2 {
+                        return Err("Stack underflow");
+                    }
+                    let bytes = self.stack.pop().unwrap();
+                    let value = self.stack.pop().unwrap();
+                    let b = bytes.as_u64();
+
+                    if b >= 31 {
+                        self.stack.push(value);
+                    } else {
+                        let sign_bit_pos = (b + 1) * 8 - 1;
+                        // Create a mask for the least significant (b+1) bytes: 2^((b+1)*8) - 1
+                        let mask = (U256::from(1 as u8) << ((b + 1) * 8)) - U256::from(1 as u8);
+                        let truncated = value & mask;
+                        let is_negative =
+                            (value & (U256::from(1 as u8) << sign_bit_pos)) != U256::ZERO;
+
+                        if is_negative {
+                            // Extend sign bit by setting all higher bits to 1
+                            let sign_extension = U256::MAX << (sign_bit_pos + 1);
+                            self.stack.push(truncated | sign_extension);
+                        } else {
+                            self.stack.push(truncated);
+                        }
+                    }
                     self.pc += 1;
                 }
                 Opcode::PUSH1 => {
