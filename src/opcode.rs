@@ -14,6 +14,8 @@ pub enum Opcode {
     SIGNEXTEND, // 0x0B: Extend length of two’s complement signed integer
     LT,         // 0x10: Less than comparsion top two stack items
     GT,         // 0x11: Greater than comparsion top two stack items
+    SLT,        // 0x12: Signed less than comparsion top two stack items
+    SGT,        // 0x13: Signed greater than comparsion top two stack items
     PUSH1,      // 0x60: Place 1 byte on top of stack
     PUSH2,      // 0x61: Place 2 byte on top of stack
     PUSH3,      // 0x62: Place 3 byte on top of stack
